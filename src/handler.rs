@@ -38,18 +38,24 @@ impl Handler for StaticFileHandler {
     fn handle(req: &Request) -> Response {
         let request::Resource::Path(s) = &req.resource;
         let route: Vec<&str> = s.split("/").collect();
+
+        // default response header
+        let mut headers: HashMap<&str, &str> = HashMap::new();
+        headers.insert("Content-Type", "text/html");
+
         println!("{}:{:?}", "route".cyan(), route);
         match route[1] {
-            "" | "index.html" => Response::new("200", None, Self::load_file("index.html")),
-            "health" => Response::new("200", None, Self::load_file("health.html")),
+            "" | "index.html" => Response::new("200", Some(headers), Self::load_file("index.html")),
             "sleep.html" => {
                 // for test multiple threads
                 thread::sleep(Duration::from_secs(5));
-                Response::new("200", None, Self::load_file("sleep.html"))
+                Response::new("200", Some(headers), Self::load_file("sleep.html"))
             }
             path => {
                 if let Some(contents) = Self::load_file(path) {
-                    let mut headers: HashMap<&str, &str> = HashMap::new();
+                    println!("{}", format!("req_path:{}", path).cyan());
+
+                    // set Content-Type for override response header
                     if path.ends_with(".css") {
                         headers.insert("Content-Type", "text/css");
                     } else if path.ends_with(".js") {

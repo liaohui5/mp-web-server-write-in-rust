@@ -31,15 +31,16 @@ impl<'a> From<Response<'a>> for String {
         // empty line
         // response body line
         let res_str = format!(
-            "{} {} {}\r\nContent-Length:{}\r\n\r\n{}",
+            "{} {} {}\r\nContent-Length:{}\r\n{}\r\n{}",
             &res.protocol_version(),
             &res.status_code(),
             &res.status_text(),
             &r.body().len(),
+            &res.headers(),
             &res.body(),
         );
 
-        println!("res_str:{:?}\r\n---end---", res_str);
+        println!("res_str:{:?}\r\n---------------", res_str);
 
         res_str
     }
